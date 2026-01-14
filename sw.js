@@ -1,11 +1,11 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v1';
+const CACHE_NAME = 'expense-tracker-v5';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    './',
+    './index.html',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png'
 ];
 
 // Install event - cache files

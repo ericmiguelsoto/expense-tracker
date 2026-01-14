@@ -57,6 +57,10 @@
             max-width: 500px;
             margin-left: auto;
             margin-right: auto;
+            box-sizing: border-box;
+            overflow: hidden;
+            border: 1px solid #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         h2 {
@@ -164,6 +168,11 @@
             margin-top: 24px;
         }
         
+        #add-income-btn {
+            width: 100%;
+            margin-top: 24px;
+        }
+        
         #set-budget-btn {
             padding: 12px 20px;
         }
@@ -192,6 +201,34 @@
         #expense-list p {
             color: #9a9a9a;
             font-size: 0.95rem;
+        }
+        
+        #income-list {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        
+        #income-list > .expense-item {
+            width: calc(100% + 24px);
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        #income-list > .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        #income-list p {
+            color: #9a9a9a;
+            font-size: 0.95rem;
+        }
+        
+        #income-breakdown {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         /* ============================================
@@ -312,6 +349,10 @@
             margin-top: 2px;
         }
         
+        .calendar-grid .day .amount.income-amount {
+            color: #27ae60;
+        }
+        
         .calendar-grid .day.has-expense {
             cursor: pointer;
         }
@@ -411,28 +452,32 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .stat-box {
             background: #f8f9fa;
             border-radius: 8px;
-            padding: 20px 16px;
+            padding: 16px 8px;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 90px;
+            height: 85px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            box-sizing: border-box;
+            min-width: 0;
         }
         
         .stat-value {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #1a1a2e;
         }
         
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #9a9a9a;
             margin-top: 6px;
             text-transform: uppercase;
@@ -660,6 +705,40 @@
                 <p>No expenses yet.</p>
             </div>
         </section>
+
+        <!-- Add Income Form -->
+        <section>
+            <h2>Add Income</h2>
+            
+            <label>Amount</label>
+            <input type="number" id="income-amount-input" placeholder="0.00">
+            
+            <label>Source</label>
+            <select id="income-source-input">
+                <option value="Salary">Salary</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Investment">Investment</option>
+                <option value="Gift">Gift</option>
+                <option value="Refund">Refund</option>
+                <option value="Other">Other</option>
+            </select>
+            
+            <label>Description</label>
+            <input type="text" id="income-description-input" placeholder="Income details">
+            
+            <label>Date</label>
+            <input type="date" id="income-date-input">
+            
+            <button id="add-income-btn">Add Income</button>
+        </section>
+
+        <!-- Recent Income List -->
+        <section>
+            <h2>Recent Income</h2>
+            <div id="income-list">
+                <p>No income yet.</p>
+            </div>
+        </section>
         
     </div>
 
@@ -688,7 +767,7 @@
         
         <!-- Key Stats -->
         <section>
-            <h2>This Month</h2>
+            <h2>This Month - Expenses</h2>
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-value" id="stat-total-spent">$0</div>
@@ -700,12 +779,43 @@
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="stat-avg-transaction">$0</div>
-                    <div class="stat-label">Avg / Transaction</div>
+                    <div class="stat-label">Avg / Trans.</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="stat-transaction-count">0</div>
-                    <div class="stat-label">Transactions</div>
+                    <div class="stat-label">Trans.</div>
                 </div>
+            </div>
+        </section>
+        
+        <!-- Income Stats -->
+        <section>
+            <h2>This Month - Income</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-total-income" style="color: #27ae60;">$0</div>
+                    <div class="stat-label">Total Income</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-net" >$0</div>
+                    <div class="stat-label">Net</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-income-avg">$0</div>
+                    <div class="stat-label">Avg / Trans.</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-income-count">0</div>
+                    <div class="stat-label">Trans.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Rollover Section -->
+        <section>
+            <h2>Monthly Rollover</h2>
+            <div style="text-align: center; padding: 20px 0;">
+                <div id="rollover-amount" style="font-size: 2rem; font-weight: 700;">$0.00</div>
             </div>
         </section>
         
@@ -714,6 +824,14 @@
             <h2>Spending by Category</h2>
             <div id="category-breakdown">
                 <!-- Category bars will be generated by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Income by Source -->
+        <section>
+            <h2>Income by Source</h2>
+            <div id="income-breakdown">
+                <!-- Income sources will be generated by JavaScript -->
             </div>
         </section>
         
@@ -780,14 +898,14 @@
     <div class="modal-overlay" id="edit-modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h3>Edit Expense</h3>
+                <h3 id="edit-modal-title">Edit Expense</h3>
                 <button class="modal-close" id="edit-modal-close">×</button>
             </div>
             <div class="modal-form">
                 <label>Amount</label>
                 <input type="number" id="edit-amount" placeholder="0.00">
                 
-                <label>Category</label>
+                <label id="edit-category-label">Category</label>
                 <select id="edit-category">
                     <option value="Food">Food</option>
                     <option value="Transport">Transport</option>
@@ -825,6 +943,9 @@
         // This stores our monthly budget
         // We try to load saved budget, or start with 0
         let monthlyBudget = loadFromStorage('monthlyBudget', 0);
+
+        // This array will hold all our income
+        let incomes = loadFromStorage('incomes', []);
 
         // ============================================
         // STORAGE FUNCTIONS: Save and Load data
@@ -870,6 +991,16 @@
         
         // Expense list container
         const expenseList = document.getElementById('expense-list');
+
+        // Income form elements
+        const incomeAmountInput = document.getElementById('income-amount-input');
+        const incomeSourceInput = document.getElementById('income-source-input');
+        const incomeDescriptionInput = document.getElementById('income-description-input');
+        const incomeDateInput = document.getElementById('income-date-input');
+        const addIncomeBtn = document.getElementById('add-income-btn');
+        
+        // Income list container
+        const incomeList = document.getElementById('income-list');
 
         // ============================================
         // STEP 3: Create functions (reusable actions)
@@ -931,7 +1062,43 @@
             for (let i = 0; i < items.length; i++) {
                 items[i].addEventListener('click', function() {
                     let index = parseInt(this.getAttribute('data-expense-index'));
-                    openEditModal(index);
+                    openEditModal(index, 'expense');
+                });
+            }
+        }
+        
+        // This function displays recent incomes in the list
+        function displayIncomes() {
+            // If no incomes, show message
+            if (incomes.length === 0) {
+                incomeList.innerHTML = '<p>No income yet.</p>';
+                return;
+            }
+            
+            // Get only the last 3 incomes (most recent first)
+            let recentIncomes = incomes.slice(-3).reverse();
+            
+            // Build the HTML for each income
+            let html = '';
+            for (let i = 0; i < recentIncomes.length; i++) {
+                let income = recentIncomes[i];
+                // Find the actual index in the full incomes array
+                let actualIndex = incomes.indexOf(income);
+                html = html + '<div class="expense-item income-item" data-income-index="' + actualIndex + '">';
+                html = html + '<div><strong>' + income.source + ':</strong> <span style="color: #27ae60;">+$' + income.amount.toFixed(2) + '</span></div>';
+                html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + income.description + ' · ' + income.date + '</div>';
+                html = html + '</div>';
+            }
+            
+            // Put the HTML into the income list container
+            incomeList.innerHTML = html;
+            
+            // Add click handlers to open edit modal
+            let items = incomeList.querySelectorAll('.income-item');
+            for (let i = 0; i < items.length; i++) {
+                items[i].addEventListener('click', function() {
+                    let index = parseInt(this.getAttribute('data-income-index'));
+                    openEditModal(index, 'income');
                 });
             }
         }
@@ -998,6 +1165,49 @@
             descriptionInput.value = '';
             dateInput.value = '';
         });
+        
+        // When "Add Income" button is clicked
+        addIncomeBtn.addEventListener('click', function() {
+            // Get values from all inputs
+            let amount = parseFloat(incomeAmountInput.value);
+            let source = incomeSourceInput.value;
+            let description = incomeDescriptionInput.value;
+            let date = incomeDateInput.value;
+            
+            // Check if amount is valid
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // Check if date is entered
+            if (!date) {
+                alert('Please enter a date');
+                return;
+            }
+            
+            // Create an income object
+            let income = {
+                amount: amount,
+                source: source,
+                description: description,
+                date: date
+            };
+            
+            // Add to our list of incomes
+            incomes.push(income);
+            
+            // Save to localStorage
+            saveToStorage('incomes', incomes);
+            
+            // Update what's shown on screen
+            displayIncomes();
+            
+            // Clear the form inputs
+            incomeAmountInput.value = '';
+            incomeDescriptionInput.value = '';
+            incomeDateInput.value = '';
+        });
 
         // ============================================
         // STEP 5: Load saved data when page opens
@@ -1006,6 +1216,7 @@
         // Show any saved data right away
         updateDisplay();
         displayExpenses();
+        displayIncomes();
 
         // ============================================
         // NAVIGATION: Switching between pages
@@ -1089,11 +1300,18 @@
             
             for (let i = 0; i < expenses.length; i++) {
                 let date = expenses[i].date;
-                if (totals[date]) {
-                    totals[date] = totals[date] + expenses[i].amount;
-                } else {
-                    totals[date] = expenses[i].amount;
+                if (!totals[date]) {
+                    totals[date] = { expenses: 0, income: 0 };
                 }
+                totals[date].expenses = totals[date].expenses + expenses[i].amount;
+            }
+            
+            for (let i = 0; i < incomes.length; i++) {
+                let date = incomes[i].date;
+                if (!totals[date]) {
+                    totals[date] = { expenses: 0, income: 0 };
+                }
+                totals[date].income = totals[date].income + incomes[i].amount;
             }
             
             return totals;
@@ -1137,16 +1355,22 @@
                 // Format date to match our expense date format (YYYY-MM-DD)
                 let dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
                 
-                let hasExpense = dailyTotals[dateStr] ? true : false;
+                let dayData = dailyTotals[dateStr];
+                let hasData = dayData ? true : false;
                 let classes = 'day';
-                if (hasExpense) {
+                if (hasData) {
                     classes = classes + ' has-expense';
                 }
                 
-                html = html + '<div class="' + classes + '"' + (hasExpense ? ' data-date="' + dateStr + '"' : '') + '>';
+                html = html + '<div class="' + classes + '"' + (hasData ? ' data-date="' + dateStr + '"' : '') + '>';
                 html = html + day;
-                if (hasExpense) {
-                    html = html + '<span class="amount">$' + dailyTotals[dateStr].toFixed(0) + '</span>';
+                if (hasData) {
+                    if (dayData.income > 0) {
+                        html = html + '<span class="amount income-amount">+$' + dayData.income.toFixed(0) + '</span>';
+                    }
+                    if (dayData.expenses > 0) {
+                        html = html + '<span class="amount">-$' + dayData.expenses.toFixed(0) + '</span>';
+                    }
                 }
                 html = html + '</div>';
             }
@@ -1195,35 +1419,84 @@
             let dayExpenses = [];
             for (let i = 0; i < expenses.length; i++) {
                 if (expenses[i].date === dateStr) {
-                    dayExpenses.push({ expense: expenses[i], index: i });
+                    dayExpenses.push({ item: expenses[i], index: i, type: 'expense' });
                 }
             }
             
-            // Build expense list HTML
-            let html = '';
-            let total = 0;
-            for (let i = 0; i < dayExpenses.length; i++) {
-                let expense = dayExpenses[i].expense;
-                let index = dayExpenses[i].index;
-                total = total + expense.amount;
-                html = html + '<div class="modal-expense expense-item" data-expense-index="' + index + '">';
-                html = html + '<div><strong>' + expense.category + ':</strong> $' + expense.amount.toFixed(2) + '</div>';
-                if (expense.description) {
-                    html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + expense.description + '</div>';
+            // Find all income for this date
+            let dayIncomes = [];
+            for (let i = 0; i < incomes.length; i++) {
+                if (incomes[i].date === dateStr) {
+                    dayIncomes.push({ item: incomes[i], index: i, type: 'income' });
                 }
-                html = html + '</div>';
+            }
+            
+            // Build list HTML
+            let html = '';
+            let totalExpenses = 0;
+            let totalIncome = 0;
+            
+            // Income section
+            if (dayIncomes.length > 0) {
+                html = html + '<div style="color: #9a9a9a; font-size: 0.8rem; margin-bottom: 8px;">INCOME</div>';
+                for (let i = 0; i < dayIncomes.length; i++) {
+                    let income = dayIncomes[i].item;
+                    let index = dayIncomes[i].index;
+                    totalIncome = totalIncome + income.amount;
+                    html = html + '<div class="modal-expense expense-item" data-income-index="' + index + '" data-type="income">';
+                    html = html + '<div><strong>' + income.source + ':</strong> <span style="color: #27ae60;">+$' + income.amount.toFixed(2) + '</span></div>';
+                    if (income.description) {
+                        html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + income.description + '</div>';
+                    }
+                    html = html + '</div>';
+                }
+            }
+            
+            // Expenses section
+            if (dayExpenses.length > 0) {
+                html = html + '<div style="color: #9a9a9a; font-size: 0.8rem; margin-bottom: 8px; margin-top: 16px;">EXPENSES</div>';
+                for (let i = 0; i < dayExpenses.length; i++) {
+                    let expense = dayExpenses[i].item;
+                    let index = dayExpenses[i].index;
+                    totalExpenses = totalExpenses + expense.amount;
+                    html = html + '<div class="modal-expense expense-item" data-expense-index="' + index + '" data-type="expense">';
+                    html = html + '<div><strong>' + expense.category + ':</strong> <span style="color: #e74c3c;">-$' + expense.amount.toFixed(2) + '</span></div>';
+                    if (expense.description) {
+                        html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + expense.description + '</div>';
+                    }
+                    html = html + '</div>';
+                }
             }
             
             modalExpenses.innerHTML = html;
-            modalTotal.textContent = 'Total: $' + total.toFixed(2);
+            
+            // Build total display
+            let totalHtml = '';
+            if (totalIncome > 0) {
+                totalHtml = totalHtml + '<span style="color: #27ae60;">+$' + totalIncome.toFixed(2) + '</span>';
+            }
+            if (totalExpenses > 0) {
+                if (totalIncome > 0) totalHtml = totalHtml + ' / ';
+                totalHtml = totalHtml + '<span style="color: #e74c3c;">-$' + totalExpenses.toFixed(2) + '</span>';
+            }
+            modalTotal.innerHTML = totalHtml;
             
             // Add click handlers to open edit modal
-            let items = modalExpenses.querySelectorAll('.expense-item');
-            for (let i = 0; i < items.length; i++) {
-                items[i].addEventListener('click', function() {
+            let expenseItems = modalExpenses.querySelectorAll('.expense-item[data-type="expense"]');
+            for (let i = 0; i < expenseItems.length; i++) {
+                expenseItems[i].addEventListener('click', function() {
                     let index = parseInt(this.getAttribute('data-expense-index'));
                     closeModal();
-                    openEditModal(index);
+                    openEditModal(index, 'expense');
+                });
+            }
+            
+            let incomeItems = modalExpenses.querySelectorAll('.expense-item[data-type="income"]');
+            for (let i = 0; i < incomeItems.length; i++) {
+                incomeItems[i].addEventListener('click', function() {
+                    let index = parseInt(this.getAttribute('data-income-index'));
+                    closeModal();
+                    openEditModal(index, 'income');
                 });
             }
             
@@ -1255,6 +1528,14 @@
         const statTransactionCount = document.getElementById('stat-transaction-count');
         const categoryBreakdown = document.getElementById('category-breakdown');
         
+        const statTotalIncome = document.getElementById('stat-total-income');
+        const statNet = document.getElementById('stat-net');
+        const statIncomeAvg = document.getElementById('stat-income-avg');
+        const statIncomeCount = document.getElementById('stat-income-count');
+        const incomeBreakdown = document.getElementById('income-breakdown');
+        
+        const rolloverAmount = document.getElementById('rollover-amount');
+        
         function renderTrends() {
             // Get current month and year
             let now = new Date();
@@ -1270,10 +1551,25 @@
                 }
             }
             
-            // Calculate stats
+            // Filter income for current month
+            let monthIncomes = [];
+            for (let i = 0; i < incomes.length; i++) {
+                let incomeDate = new Date(incomes[i].date);
+                if (incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear) {
+                    monthIncomes.push(incomes[i]);
+                }
+            }
+            
+            // Calculate expense stats
             let totalSpent = 0;
             for (let i = 0; i < monthExpenses.length; i++) {
                 totalSpent = totalSpent + monthExpenses[i].amount;
+            }
+            
+            // Calculate income stats
+            let totalIncome = 0;
+            for (let i = 0; i < monthIncomes.length; i++) {
+                totalIncome = totalIncome + monthIncomes[i].amount;
             }
             
             // Days elapsed in current month
@@ -1282,14 +1578,32 @@
             
             // Average per transaction
             let avgTransaction = monthExpenses.length > 0 ? totalSpent / monthExpenses.length : 0;
+            let avgIncomeTransaction = monthIncomes.length > 0 ? totalIncome / monthIncomes.length : 0;
             
-            // Update stat displays
+            // Net calculation
+            let net = totalIncome - totalSpent;
+            
+            // Update expense stat displays
             statTotalSpent.textContent = '$' + totalSpent.toFixed(0);
             statAvgDaily.textContent = '$' + avgDaily.toFixed(0);
             statAvgTransaction.textContent = '$' + avgTransaction.toFixed(0);
             statTransactionCount.textContent = monthExpenses.length;
             
-            // Calculate category breakdown
+            // Update income stat displays
+            statTotalIncome.textContent = '$' + totalIncome.toFixed(0);
+            statIncomeAvg.textContent = '$' + avgIncomeTransaction.toFixed(0);
+            statIncomeCount.textContent = monthIncomes.length;
+            
+            // Net display with color
+            if (net >= 0) {
+                statNet.textContent = '+$' + net.toFixed(0);
+                statNet.style.color = '#27ae60';
+            } else {
+                statNet.textContent = '-$' + Math.abs(net).toFixed(0);
+                statNet.style.color = '#e74c3c';
+            }
+            
+            // Calculate category breakdown for expenses
             let categoryTotals = {};
             for (let i = 0; i < monthExpenses.length; i++) {
                 let category = monthExpenses[i].category;
@@ -1324,6 +1638,53 @@
                     html = html + '</div>';
                 }
                 categoryBreakdown.innerHTML = html;
+            }
+            
+            // Calculate source breakdown for income
+            let sourceTotals = {};
+            for (let i = 0; i < monthIncomes.length; i++) {
+                let source = monthIncomes[i].source;
+                if (sourceTotals[source]) {
+                    sourceTotals[source] = sourceTotals[source] + monthIncomes[i].amount;
+                } else {
+                    sourceTotals[source] = monthIncomes[i].amount;
+                }
+            }
+            
+            // Convert to array and sort by amount (highest first)
+            let sourceArray = [];
+            for (let source in sourceTotals) {
+                sourceArray.push({
+                    name: source,
+                    amount: sourceTotals[source]
+                });
+            }
+            sourceArray.sort(function(a, b) {
+                return b.amount - a.amount;
+            });
+            
+            // Build income source list HTML
+            if (sourceArray.length === 0) {
+                incomeBreakdown.innerHTML = '<p class="no-data-message">No income this month yet.</p>';
+            } else {
+                let html = '';
+                for (let i = 0; i < sourceArray.length; i++) {
+                    let src = sourceArray[i];
+                    html = html + '<div class="category-item">';
+                    html = html + '<strong>' + src.name + ':</strong> <span style="color: #27ae60;">$' + src.amount.toFixed(2) + '</span>';
+                    html = html + '</div>';
+                }
+                incomeBreakdown.innerHTML = html;
+            }
+            
+            // Calculate and display rollover (Budget - Expenses)
+            let rollover = monthlyBudget - totalSpent;
+            if (rollover >= 0) {
+                rolloverAmount.textContent = '$' + rollover.toFixed(2);
+                rolloverAmount.style.color = '#27ae60';
+            } else {
+                rolloverAmount.textContent = '-$' + Math.abs(rollover).toFixed(2);
+                rolloverAmount.style.color = '#e74c3c';
             }
             
             // Render monthly history
@@ -1375,16 +1736,19 @@
                 
                 if (!monthlyData[monthKey]) {
                     monthlyData[monthKey] = {
-                        total: 0,
-                        count: 0,
+                        totalExpenses: 0,
+                        totalIncome: 0,
+                        expenseCount: 0,
+                        incomeCount: 0,
                         year: expenseDate.getFullYear(),
                         month: expenseDate.getMonth(),
-                        categories: {}
+                        categories: {},
+                        sources: {}
                     };
                 }
                 
-                monthlyData[monthKey].total += expenses[i].amount;
-                monthlyData[monthKey].count += 1;
+                monthlyData[monthKey].totalExpenses += expenses[i].amount;
+                monthlyData[monthKey].expenseCount += 1;
                 
                 // Track category totals
                 let cat = expenses[i].category;
@@ -1392,6 +1756,35 @@
                     monthlyData[monthKey].categories[cat] = 0;
                 }
                 monthlyData[monthKey].categories[cat] += expenses[i].amount;
+            }
+            
+            // Group income by month
+            for (let i = 0; i < incomes.length; i++) {
+                let incomeDate = new Date(incomes[i].date);
+                let monthKey = incomeDate.getFullYear() + '-' + String(incomeDate.getMonth() + 1).padStart(2, '0');
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        totalExpenses: 0,
+                        totalIncome: 0,
+                        expenseCount: 0,
+                        incomeCount: 0,
+                        year: incomeDate.getFullYear(),
+                        month: incomeDate.getMonth(),
+                        categories: {},
+                        sources: {}
+                    };
+                }
+                
+                monthlyData[monthKey].totalIncome += incomes[i].amount;
+                monthlyData[monthKey].incomeCount += 1;
+                
+                // Track source totals
+                let src = incomes[i].source;
+                if (!monthlyData[monthKey].sources[src]) {
+                    monthlyData[monthKey].sources[src] = 0;
+                }
+                monthlyData[monthKey].sources[src] += incomes[i].amount;
             }
             
             // Store for modal access
@@ -1430,24 +1823,50 @@
             monthModalTitle.textContent = monthNames[m.month] + ' ' + m.year;
             
             // Calculate stats
-            let avgPerTransaction = m.total / m.count;
+            let avgPerExpense = m.expenseCount > 0 ? m.totalExpenses / m.expenseCount : 0;
+            let avgPerIncome = m.incomeCount > 0 ? m.totalIncome / m.incomeCount : 0;
+            let net = m.totalIncome - m.totalExpenses;
             
             // Find top category
-            let topCategory = '';
-            let topAmount = 0;
+            let topCategory = 'N/A';
+            let topCatAmount = 0;
             for (let cat in m.categories) {
-                if (m.categories[cat] > topAmount) {
-                    topAmount = m.categories[cat];
+                if (m.categories[cat] > topCatAmount) {
+                    topCatAmount = m.categories[cat];
                     topCategory = cat;
+                }
+            }
+            
+            // Find top source
+            let topSource = 'N/A';
+            let topSrcAmount = 0;
+            for (let src in m.sources) {
+                if (m.sources[src] > topSrcAmount) {
+                    topSrcAmount = m.sources[src];
+                    topSource = src;
                 }
             }
             
             // Build content
             let html = '';
-            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Total Spent</span><span class="modal-stat-value">$' + m.total.toFixed(2) + '</span></div>';
-            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Transactions</span><span class="modal-stat-value">' + m.count + '</span></div>';
-            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Avg / Transaction</span><span class="modal-stat-value">$' + avgPerTransaction.toFixed(2) + '</span></div>';
+            
+            // Income section
+            html = html + '<div style="color: #9a9a9a; font-size: 0.75rem; margin-bottom: 8px;">INCOME</div>';
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Total Income</span><span class="modal-stat-value" style="color: #27ae60;">$' + m.totalIncome.toFixed(2) + '</span></div>';
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Transactions</span><span class="modal-stat-value">' + m.incomeCount + '</span></div>';
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Top Source</span><span class="modal-stat-value">' + topSource + '</span></div>';
+            
+            // Expenses section
+            html = html + '<div style="color: #9a9a9a; font-size: 0.75rem; margin-bottom: 8px; margin-top: 16px;">EXPENSES</div>';
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Total Spent</span><span class="modal-stat-value" style="color: #e74c3c;">$' + m.totalExpenses.toFixed(2) + '</span></div>';
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Transactions</span><span class="modal-stat-value">' + m.expenseCount + '</span></div>';
             html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Top Category</span><span class="modal-stat-value">' + topCategory + '</span></div>';
+            
+            // Net section
+            html = html + '<div style="color: #9a9a9a; font-size: 0.75rem; margin-bottom: 8px; margin-top: 16px;">SUMMARY</div>';
+            let netColor = net >= 0 ? '#27ae60' : '#e74c3c';
+            let netText = net >= 0 ? '+$' + net.toFixed(2) : '-$' + Math.abs(net).toFixed(2);
+            html = html + '<div class="modal-stat-row"><span class="modal-stat-label">Net</span><span class="modal-stat-value" style="color: ' + netColor + ';">' + netText + '</span></div>';
             
             monthModalContent.innerHTML = html;
             
@@ -1475,24 +1894,56 @@
         
         const editModalOverlay = document.getElementById('edit-modal-overlay');
         const editModalClose = document.getElementById('edit-modal-close');
+        const editModalTitle = document.getElementById('edit-modal-title');
         const editAmount = document.getElementById('edit-amount');
         const editCategory = document.getElementById('edit-category');
+        const editCategoryLabel = document.getElementById('edit-category-label');
         const editDescription = document.getElementById('edit-description');
         const editDate = document.getElementById('edit-date');
         const editDeleteBtn = document.getElementById('edit-delete-btn');
         const editSaveBtn = document.getElementById('edit-save-btn');
         
         let currentEditIndex = null;
+        let currentEditType = null;
         
-        function openEditModal(index) {
+        function openEditModal(index, type) {
             currentEditIndex = index;
-            let expense = expenses[index];
+            currentEditType = type;
             
-            // Fill in the form with current values
-            editAmount.value = expense.amount;
-            editCategory.value = expense.category;
-            editDescription.value = expense.description;
-            editDate.value = expense.date;
+            if (type === 'expense') {
+                let expense = expenses[index];
+                editModalTitle.textContent = 'Edit Expense';
+                editCategoryLabel.textContent = 'Category';
+                editAmount.value = expense.amount;
+                editCategory.innerHTML = `
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Health">Health</option>
+                    <option value="Other">Other</option>
+                `;
+                editCategory.value = expense.category;
+                editDescription.value = expense.description;
+                editDate.value = expense.date;
+            } else {
+                let income = incomes[index];
+                editModalTitle.textContent = 'Edit Income';
+                editCategoryLabel.textContent = 'Source';
+                editAmount.value = income.amount;
+                editCategory.innerHTML = `
+                    <option value="Salary">Salary</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Gift">Gift</option>
+                    <option value="Refund">Refund</option>
+                    <option value="Other">Other</option>
+                `;
+                editCategory.value = income.source;
+                editDescription.value = income.description;
+                editDate.value = income.date;
+            }
             
             // Show the modal
             editModalOverlay.classList.add('active');
@@ -1513,7 +1964,7 @@
             }
         });
         
-        // Save edited expense
+        // Save edited expense/income
         editSaveBtn.addEventListener('click', function() {
             if (currentEditIndex === null) return;
             
@@ -1528,40 +1979,54 @@
                 return;
             }
             
-            // Update the expense
-            expenses[currentEditIndex] = {
-                amount: amount,
-                category: editCategory.value,
-                description: editDescription.value,
-                date: editDate.value
-            };
-            
-            // Save to localStorage
-            saveToStorage('expenses', expenses);
+            if (currentEditType === 'expense') {
+                // Update the expense
+                expenses[currentEditIndex] = {
+                    amount: amount,
+                    category: editCategory.value,
+                    description: editDescription.value,
+                    date: editDate.value
+                };
+                saveToStorage('expenses', expenses);
+                displayExpenses();
+            } else {
+                // Update the income
+                incomes[currentEditIndex] = {
+                    amount: amount,
+                    source: editCategory.value,
+                    description: editDescription.value,
+                    date: editDate.value
+                };
+                saveToStorage('incomes', incomes);
+                displayIncomes();
+            }
             
             // Update displays
             updateDisplay();
-            displayExpenses();
             renderCalendar();
             
             // Close modal
             closeEditModal();
         });
         
-        // Delete expense
+        // Delete expense/income
         editDeleteBtn.addEventListener('click', function() {
             if (currentEditIndex === null) return;
             
-            if (confirm('Are you sure you want to delete this expense?')) {
-                // Remove the expense from array
-                expenses.splice(currentEditIndex, 1);
-                
-                // Save to localStorage
-                saveToStorage('expenses', expenses);
+            let itemType = currentEditType === 'expense' ? 'expense' : 'income';
+            if (confirm('Are you sure you want to delete this ' + itemType + '?')) {
+                if (currentEditType === 'expense') {
+                    expenses.splice(currentEditIndex, 1);
+                    saveToStorage('expenses', expenses);
+                    displayExpenses();
+                } else {
+                    incomes.splice(currentEditIndex, 1);
+                    saveToStorage('incomes', incomes);
+                    displayIncomes();
+                }
                 
                 // Update displays
                 updateDisplay();
-                displayExpenses();
                 renderCalendar();
                 
                 // Close modal
