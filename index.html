@@ -225,6 +225,28 @@
             font-size: 0.95rem;
         }
         
+        #subscription-list {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        
+        #subscription-list > .expense-item {
+            width: calc(100% + 24px);
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        #subscription-list > .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        #subscription-list p {
+            color: #9a9a9a;
+            font-size: 0.95rem;
+        }
+        
         #income-breakdown {
             display: flex;
             flex-direction: column;
@@ -243,7 +265,7 @@
             background: #ffffff;
             display: flex;
             justify-content: center;
-            gap: 40px;
+            gap: 20px;
             padding: 16px 0;
             border-top: 1px solid #f0f0f0;
         }
@@ -678,6 +700,12 @@
             <label>Amount</label>
             <input type="number" id="amount-input" placeholder="0.00">
             
+            <label>Currency</label>
+            <select id="currency-input">
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+            </select>
+            
             <label>Category</label>
             <select id="category-input">
                 <option value="Food">Food</option>
@@ -713,6 +741,12 @@
             <label>Amount</label>
             <input type="number" id="income-amount-input" placeholder="0.00">
             
+            <label>Currency</label>
+            <select id="income-currency-input">
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+            </select>
+            
             <label>Source</label>
             <select id="income-source-input">
                 <option value="Salary">Salary</option>
@@ -738,6 +772,15 @@
             <div id="income-list">
                 <p>No income yet.</p>
             </div>
+        </section>
+
+        <!-- Subscriptions Section -->
+        <section>
+            <h2>Subscriptions</h2>
+            <div id="subscription-list">
+                <p>No subscriptions yet.</p>
+            </div>
+            <button id="add-subscription-btn" style="width: 100%; margin-top: 16px;">+ Add Subscription</button>
         </section>
         
     </div>
@@ -771,11 +814,11 @@
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-value" id="stat-total-spent">$0</div>
-                    <div class="stat-label">Total Spent</div>
+                    <div class="stat-label">USD Spent</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value" id="stat-avg-daily">$0</div>
-                    <div class="stat-label">Avg / Day</div>
+                    <div class="stat-value" id="stat-total-spent-cad">$0</div>
+                    <div class="stat-label">CAD Spent</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="stat-avg-transaction">$0</div>
@@ -794,11 +837,11 @@
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-value" id="stat-total-income" style="color: #27ae60;">$0</div>
-                    <div class="stat-label">Total Income</div>
+                    <div class="stat-label">USD Income</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value" id="stat-net" >$0</div>
-                    <div class="stat-label">Net</div>
+                    <div class="stat-value" id="stat-total-income-cad" style="color: #27ae60;">$0</div>
+                    <div class="stat-label">CAD Income</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="stat-income-avg">$0</div>
@@ -816,6 +859,7 @@
             <h2>Monthly Rollover</h2>
             <div style="text-align: center; padding: 20px 0;">
                 <div id="rollover-amount" style="font-size: 2rem; font-weight: 700;">$0.00</div>
+                <div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">USD</div>
             </div>
         </section>
         
@@ -851,12 +895,78 @@
     </div>
 
     <!-- ============================================
+         DEBT PAGE
+         ============================================ -->
+    <div id="debt-page" class="page">
+        
+        <!-- Card Selector -->
+        <section>
+            <h2>Credit Cards</h2>
+            <select id="card-selector" style="margin-bottom: 12px;">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <div style="display: flex; gap: 8px;">
+                <button id="add-card-btn" style="flex: 1;">+ Add Card</button>
+                <button id="edit-card-btn" style="flex: 1;">Edit Name</button>
+                <button id="delete-card-btn" style="flex: 1; background: #e74c3c;">Delete</button>
+            </div>
+        </section>
+        
+        <!-- Debt Overview -->
+        <section>
+            <h2 id="debt-card-title">Credit Card</h2>
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="color: #9a9a9a; font-size: 0.85rem;">Current Balance</div>
+                <div id="debt-balance" style="font-size: 2rem; font-weight: 700; color: #e74c3c;">$0.00 CAD</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="color: #9a9a9a; font-size: 0.75rem;">TOTAL PAID</div>
+                    <div id="debt-total-paid" style="font-weight: 600; color: #27ae60;">$0.00</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="color: #9a9a9a; font-size: 0.75rem;">PAID THIS MONTH</div>
+                    <div id="debt-paid-this-month" style="font-weight: 600; color: #27ae60;">$0.00</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Update Balance -->
+        <section>
+            <h2>Update Balance</h2>
+            <label>New Balance (CAD)</label>
+            <input type="number" id="debt-balance-input" placeholder="0.00">
+            <button id="update-balance-btn" style="width: 100%; margin-top: 16px;">Update Balance</button>
+        </section>
+        
+        <!-- Add Payment -->
+        <section>
+            <h2>Add Payment</h2>
+            <label>Payment Amount (CAD)</label>
+            <input type="number" id="debt-payment-input" placeholder="0.00">
+            <label>Date</label>
+            <input type="date" id="debt-payment-date">
+            <button id="add-payment-btn" style="width: 100%; margin-top: 16px;">Add Payment</button>
+        </section>
+        
+        <!-- Payment History -->
+        <section>
+            <h2>Payment History</h2>
+            <div id="payment-history">
+                <p>No payments yet.</p>
+            </div>
+        </section>
+        
+    </div>
+
+    <!-- ============================================
          NAVIGATION BAR
          ============================================ -->
     <nav>
         <button id="nav-home" class="active">Home</button>
         <button id="nav-history">History</button>
         <button id="nav-trends">Trends</button>
+        <button id="nav-debt">Debt</button>
     </nav>
 
     <!-- ============================================
@@ -905,6 +1015,12 @@
                 <label>Amount</label>
                 <input type="number" id="edit-amount" placeholder="0.00">
                 
+                <label>Currency</label>
+                <select id="edit-currency">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                </select>
+                
                 <label id="edit-category-label">Category</label>
                 <select id="edit-category">
                     <option value="Food">Food</option>
@@ -930,6 +1046,70 @@
         </div>
     </div>
 
+    <!-- ============================================
+         SUBSCRIPTION MODAL
+         ============================================ -->
+    <div class="modal-overlay" id="subscription-modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="subscription-modal-title">Add Subscription</h3>
+                <button class="modal-close" id="subscription-modal-close">×</button>
+            </div>
+            <div class="modal-form">
+                <label>Name</label>
+                <input type="text" id="subscription-name" placeholder="e.g., Netflix">
+                
+                <label>Amount</label>
+                <input type="number" id="subscription-amount" placeholder="0.00">
+                
+                <label>Currency</label>
+                <select id="subscription-currency">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                </select>
+                
+                <label>Category</label>
+                <select id="subscription-category">
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Health">Health</option>
+                    <option value="Other">Other</option>
+                </select>
+                
+                <label>Billing Day (1-31)</label>
+                <input type="number" id="subscription-day" placeholder="15" min="1" max="31">
+                
+                <div class="modal-buttons" id="subscription-buttons">
+                    <button class="btn-save" id="subscription-save-btn" style="flex: 1;">Save</button>
+                </div>
+                <div class="modal-buttons" id="subscription-edit-buttons" style="display: none;">
+                    <button class="btn-delete" id="subscription-delete-btn">Delete</button>
+                    <button class="btn-save" id="subscription-update-btn">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         CARD NAME MODAL
+         ============================================ -->
+    <div class="modal-overlay" id="card-modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="card-modal-title">Add Card</h3>
+                <button class="modal-close" id="card-modal-close">×</button>
+            </div>
+            <div class="modal-form">
+                <label>Card Name</label>
+                <input type="text" id="card-name-input" placeholder="e.g., Visa, Mastercard">
+                
+                <div class="modal-buttons">
+                    <button class="btn-save" id="card-modal-save-btn" style="flex: 1;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript - The Brain of our App -->
     <script>
         // ============================================
@@ -946,6 +1126,27 @@
 
         // This array will hold all our income
         let incomes = loadFromStorage('incomes', []);
+        
+        // This array will hold all our subscriptions
+        let subscriptions = loadFromStorage('subscriptions', []);
+        
+        // Debt tracker data - now supports multiple cards
+        let creditCards = loadFromStorage('creditCards', []);
+        let currentCardIndex = loadFromStorage('currentCardIndex', 0);
+        
+        // Migration: if old data exists, convert it
+        let oldDebtBalance = loadFromStorage('debtBalance', null);
+        let oldDebtPayments = loadFromStorage('debtPayments', null);
+        if (oldDebtBalance !== null && creditCards.length === 0) {
+            creditCards.push({
+                name: 'Credit Card',
+                balance: oldDebtBalance,
+                payments: oldDebtPayments || []
+            });
+            saveToStorage('creditCards', creditCards);
+            localStorage.removeItem('debtBalance');
+            localStorage.removeItem('debtPayments');
+        }
 
         // ============================================
         // STORAGE FUNCTIONS: Save and Load data
@@ -984,6 +1185,7 @@
         
         // Expense form elements
         const amountInput = document.getElementById('amount-input');
+        const currencyInput = document.getElementById('currency-input');
         const categoryInput = document.getElementById('category-input');
         const descriptionInput = document.getElementById('description-input');
         const dateInput = document.getElementById('date-input');
@@ -994,6 +1196,7 @@
 
         // Income form elements
         const incomeAmountInput = document.getElementById('income-amount-input');
+        const incomeCurrencyInput = document.getElementById('income-currency-input');
         const incomeSourceInput = document.getElementById('income-source-input');
         const incomeDescriptionInput = document.getElementById('income-description-input');
         const incomeDateInput = document.getElementById('income-date-input');
@@ -1046,10 +1249,11 @@
             let html = '';
             for (let i = 0; i < recentExpenses.length; i++) {
                 let expense = recentExpenses[i];
+                let currency = expense.currency || 'USD';
                 // Find the actual index in the full expenses array
                 let actualIndex = expenses.indexOf(expense);
                 html = html + '<div class="expense-item" data-expense-index="' + actualIndex + '">';
-                html = html + '<div><strong>' + expense.category + ':</strong> $' + expense.amount.toFixed(2) + '</div>';
+                html = html + '<div><strong>' + expense.category + ':</strong> $' + expense.amount.toFixed(2) + ' ' + currency + '</div>';
                 html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + expense.description + ' · ' + expense.date + '</div>';
                 html = html + '</div>';
             }
@@ -1082,10 +1286,11 @@
             let html = '';
             for (let i = 0; i < recentIncomes.length; i++) {
                 let income = recentIncomes[i];
+                let currency = income.currency || 'USD';
                 // Find the actual index in the full incomes array
                 let actualIndex = incomes.indexOf(income);
                 html = html + '<div class="expense-item income-item" data-income-index="' + actualIndex + '">';
-                html = html + '<div><strong>' + income.source + ':</strong> <span style="color: #27ae60;">+$' + income.amount.toFixed(2) + '</span></div>';
+                html = html + '<div><strong>' + income.source + ':</strong> <span style="color: #27ae60;">+$' + income.amount.toFixed(2) + ' ' + currency + '</span></div>';
                 html = html + '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + income.description + ' · ' + income.date + '</div>';
                 html = html + '</div>';
             }
@@ -1126,6 +1331,7 @@
         addExpenseBtn.addEventListener('click', function() {
             // Get values from all inputs
             let amount = parseFloat(amountInput.value);
+            let currency = currencyInput.value;
             let category = categoryInput.value;
             let description = descriptionInput.value;
             let date = dateInput.value;
@@ -1145,6 +1351,7 @@
             // Create an expense object (a bundle of related data)
             let expense = {
                 amount: amount,
+                currency: currency,
                 category: category,
                 description: description,
                 date: date
@@ -1170,6 +1377,7 @@
         addIncomeBtn.addEventListener('click', function() {
             // Get values from all inputs
             let amount = parseFloat(incomeAmountInput.value);
+            let currency = incomeCurrencyInput.value;
             let source = incomeSourceInput.value;
             let description = incomeDescriptionInput.value;
             let date = incomeDateInput.value;
@@ -1189,6 +1397,7 @@
             // Create an income object
             let income = {
                 amount: amount,
+                currency: currency,
                 source: source,
                 description: description,
                 date: date
@@ -1225,20 +1434,24 @@
         const navHome = document.getElementById('nav-home');
         const navHistory = document.getElementById('nav-history');
         const navTrends = document.getElementById('nav-trends');
+        const navDebt = document.getElementById('nav-debt');
         const homePage = document.getElementById('home-page');
         const historyPage = document.getElementById('history-page');
         const trendsPage = document.getElementById('trends-page');
+        const debtPage = document.getElementById('debt-page');
         
         navHome.addEventListener('click', function() {
             // Show home page, hide others
             homePage.classList.add('active');
             historyPage.classList.remove('active');
             trendsPage.classList.remove('active');
+            debtPage.classList.remove('active');
             
             // Update nav button styles
             navHome.classList.add('active');
             navHistory.classList.remove('active');
             navTrends.classList.remove('active');
+            navDebt.classList.remove('active');
         });
         
         navHistory.addEventListener('click', function() {
@@ -1246,11 +1459,13 @@
             historyPage.classList.add('active');
             homePage.classList.remove('active');
             trendsPage.classList.remove('active');
+            debtPage.classList.remove('active');
             
             // Update nav button styles
             navHistory.classList.add('active');
             navHome.classList.remove('active');
             navTrends.classList.remove('active');
+            navDebt.classList.remove('active');
             
             // Render the calendar
             renderCalendar();
@@ -1261,14 +1476,33 @@
             trendsPage.classList.add('active');
             homePage.classList.remove('active');
             historyPage.classList.remove('active');
+            debtPage.classList.remove('active');
             
             // Update nav button styles
             navTrends.classList.add('active');
             navHome.classList.remove('active');
             navHistory.classList.remove('active');
+            navDebt.classList.remove('active');
             
             // Render the trends
             renderTrends();
+        });
+        
+        navDebt.addEventListener('click', function() {
+            // Show debt page, hide others
+            debtPage.classList.add('active');
+            homePage.classList.remove('active');
+            historyPage.classList.remove('active');
+            trendsPage.classList.remove('active');
+            
+            // Update nav button styles
+            navDebt.classList.add('active');
+            navHome.classList.remove('active');
+            navHistory.classList.remove('active');
+            navTrends.classList.remove('active');
+            
+            // Render debt info
+            renderDebt();
         });
 
         // ============================================
@@ -1523,13 +1757,13 @@
         // ============================================
         
         const statTotalSpent = document.getElementById('stat-total-spent');
-        const statAvgDaily = document.getElementById('stat-avg-daily');
+        const statTotalSpentCad = document.getElementById('stat-total-spent-cad');
         const statAvgTransaction = document.getElementById('stat-avg-transaction');
         const statTransactionCount = document.getElementById('stat-transaction-count');
         const categoryBreakdown = document.getElementById('category-breakdown');
         
         const statTotalIncome = document.getElementById('stat-total-income');
-        const statNet = document.getElementById('stat-net');
+        const statTotalIncomeCad = document.getElementById('stat-total-income-cad');
         const statIncomeAvg = document.getElementById('stat-income-avg');
         const statIncomeCount = document.getElementById('stat-income-count');
         const incomeBreakdown = document.getElementById('income-breakdown');
@@ -1560,48 +1794,47 @@
                 }
             }
             
-            // Calculate expense stats
-            let totalSpent = 0;
+            // Calculate expense stats by currency
+            let totalSpentUSD = 0;
+            let totalSpentCAD = 0;
             for (let i = 0; i < monthExpenses.length; i++) {
-                totalSpent = totalSpent + monthExpenses[i].amount;
+                let currency = monthExpenses[i].currency || 'USD';
+                if (currency === 'CAD') {
+                    totalSpentCAD += monthExpenses[i].amount;
+                } else {
+                    totalSpentUSD += monthExpenses[i].amount;
+                }
             }
             
-            // Calculate income stats
-            let totalIncome = 0;
+            // Calculate income stats by currency
+            let totalIncomeUSD = 0;
+            let totalIncomeCAD = 0;
             for (let i = 0; i < monthIncomes.length; i++) {
-                totalIncome = totalIncome + monthIncomes[i].amount;
+                let currency = monthIncomes[i].currency || 'USD';
+                if (currency === 'CAD') {
+                    totalIncomeCAD += monthIncomes[i].amount;
+                } else {
+                    totalIncomeUSD += monthIncomes[i].amount;
+                }
             }
             
-            // Days elapsed in current month
-            let daysElapsed = now.getDate();
-            let avgDaily = daysElapsed > 0 ? totalSpent / daysElapsed : 0;
-            
-            // Average per transaction
+            // Average per transaction (combined for simplicity)
+            let totalSpent = totalSpentUSD + totalSpentCAD;
+            let totalIncome = totalIncomeUSD + totalIncomeCAD;
             let avgTransaction = monthExpenses.length > 0 ? totalSpent / monthExpenses.length : 0;
             let avgIncomeTransaction = monthIncomes.length > 0 ? totalIncome / monthIncomes.length : 0;
             
-            // Net calculation
-            let net = totalIncome - totalSpent;
-            
             // Update expense stat displays
-            statTotalSpent.textContent = '$' + totalSpent.toFixed(0);
-            statAvgDaily.textContent = '$' + avgDaily.toFixed(0);
+            statTotalSpent.textContent = '$' + totalSpentUSD.toFixed(0);
+            statTotalSpentCad.textContent = '$' + totalSpentCAD.toFixed(0);
             statAvgTransaction.textContent = '$' + avgTransaction.toFixed(0);
             statTransactionCount.textContent = monthExpenses.length;
             
             // Update income stat displays
-            statTotalIncome.textContent = '$' + totalIncome.toFixed(0);
+            statTotalIncome.textContent = '$' + totalIncomeUSD.toFixed(0);
+            statTotalIncomeCad.textContent = '$' + totalIncomeCAD.toFixed(0);
             statIncomeAvg.textContent = '$' + avgIncomeTransaction.toFixed(0);
             statIncomeCount.textContent = monthIncomes.length;
-            
-            // Net display with color
-            if (net >= 0) {
-                statNet.textContent = '+$' + net.toFixed(0);
-                statNet.style.color = '#27ae60';
-            } else {
-                statNet.textContent = '-$' + Math.abs(net).toFixed(0);
-                statNet.style.color = '#e74c3c';
-            }
             
             // Calculate category breakdown for expenses
             let categoryTotals = {};
@@ -1677,8 +1910,8 @@
                 incomeBreakdown.innerHTML = html;
             }
             
-            // Calculate and display rollover (Budget - Expenses)
-            let rollover = monthlyBudget - totalSpent;
+            // Calculate and display rollover (Budget - USD Expenses only)
+            let rollover = monthlyBudget - totalSpentUSD;
             if (rollover >= 0) {
                 rolloverAmount.textContent = '$' + rollover.toFixed(2);
                 rolloverAmount.style.color = '#27ae60';
@@ -1896,6 +2129,7 @@
         const editModalClose = document.getElementById('edit-modal-close');
         const editModalTitle = document.getElementById('edit-modal-title');
         const editAmount = document.getElementById('edit-amount');
+        const editCurrency = document.getElementById('edit-currency');
         const editCategory = document.getElementById('edit-category');
         const editCategoryLabel = document.getElementById('edit-category-label');
         const editDescription = document.getElementById('edit-description');
@@ -1915,6 +2149,7 @@
                 editModalTitle.textContent = 'Edit Expense';
                 editCategoryLabel.textContent = 'Category';
                 editAmount.value = expense.amount;
+                editCurrency.value = expense.currency || 'USD';
                 editCategory.innerHTML = `
                     <option value="Food">Food</option>
                     <option value="Transport">Transport</option>
@@ -1932,6 +2167,7 @@
                 editModalTitle.textContent = 'Edit Income';
                 editCategoryLabel.textContent = 'Source';
                 editAmount.value = income.amount;
+                editCurrency.value = income.currency || 'USD';
                 editCategory.innerHTML = `
                     <option value="Salary">Salary</option>
                     <option value="Freelance">Freelance</option>
@@ -1983,6 +2219,7 @@
                 // Update the expense
                 expenses[currentEditIndex] = {
                     amount: amount,
+                    currency: editCurrency.value,
                     category: editCategory.value,
                     description: editDescription.value,
                     date: editDate.value
@@ -1993,6 +2230,7 @@
                 // Update the income
                 incomes[currentEditIndex] = {
                     amount: amount,
+                    currency: editCurrency.value,
                     source: editCategory.value,
                     description: editDescription.value,
                     date: editDate.value
@@ -2033,6 +2271,484 @@
                 closeEditModal();
             }
         });
+
+        // ============================================
+        // DEBT TRACKER
+        // ============================================
+        
+        const cardSelector = document.getElementById('card-selector');
+        const addCardBtn = document.getElementById('add-card-btn');
+        const editCardBtn = document.getElementById('edit-card-btn');
+        const deleteCardBtn = document.getElementById('delete-card-btn');
+        const debtCardTitle = document.getElementById('debt-card-title');
+        const debtBalanceDisplay = document.getElementById('debt-balance');
+        const debtTotalPaid = document.getElementById('debt-total-paid');
+        const debtPaidThisMonth = document.getElementById('debt-paid-this-month');
+        const debtBalanceInput = document.getElementById('debt-balance-input');
+        const updateBalanceBtn = document.getElementById('update-balance-btn');
+        const debtPaymentInput = document.getElementById('debt-payment-input');
+        const debtPaymentDate = document.getElementById('debt-payment-date');
+        const addPaymentBtn = document.getElementById('add-payment-btn');
+        const paymentHistory = document.getElementById('payment-history');
+        
+        function populateCardSelector() {
+            cardSelector.innerHTML = '';
+            
+            if (creditCards.length === 0) {
+                let option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No cards yet';
+                cardSelector.appendChild(option);
+                return;
+            }
+            
+            for (let i = 0; i < creditCards.length; i++) {
+                let option = document.createElement('option');
+                option.value = i;
+                option.textContent = creditCards[i].name;
+                if (i === currentCardIndex) {
+                    option.selected = true;
+                }
+                cardSelector.appendChild(option);
+            }
+        }
+        
+        function getCurrentCard() {
+            if (creditCards.length === 0 || currentCardIndex >= creditCards.length) {
+                return null;
+            }
+            return creditCards[currentCardIndex];
+        }
+        
+        function renderDebt() {
+            populateCardSelector();
+            
+            let card = getCurrentCard();
+            
+            if (!card) {
+                debtCardTitle.textContent = 'No Card Selected';
+                debtBalanceDisplay.textContent = '$0.00 CAD';
+                debtTotalPaid.textContent = '$0.00';
+                debtPaidThisMonth.textContent = '$0.00';
+                paymentHistory.innerHTML = '<p>No cards yet. Add a card to get started.</p>';
+                return;
+            }
+            
+            // Display card name and balance
+            debtCardTitle.textContent = card.name;
+            debtBalanceDisplay.textContent = '$' + card.balance.toFixed(2) + ' CAD';
+            
+            // Calculate total paid
+            let totalPaid = 0;
+            let payments = card.payments || [];
+            for (let i = 0; i < payments.length; i++) {
+                totalPaid += payments[i].amount;
+            }
+            debtTotalPaid.textContent = '$' + totalPaid.toFixed(2);
+            
+            // Calculate paid this month
+            let now = new Date();
+            let currentMonth = now.getMonth();
+            let currentYear = now.getFullYear();
+            let paidThisMonth = 0;
+            
+            for (let i = 0; i < payments.length; i++) {
+                let paymentDate = new Date(payments[i].date);
+                if (paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear) {
+                    paidThisMonth += payments[i].amount;
+                }
+            }
+            debtPaidThisMonth.textContent = '$' + paidThisMonth.toFixed(2);
+            
+            // Display payment history
+            if (payments.length === 0) {
+                paymentHistory.innerHTML = '<p>No payments yet.</p>';
+            } else {
+                let html = '';
+                let recentPayments = payments.slice(-5).reverse();
+                for (let i = 0; i < recentPayments.length; i++) {
+                    let payment = recentPayments[i];
+                    html += '<div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">';
+                    html += '<div><strong>$' + payment.amount.toFixed(2) + ' CAD</strong></div>';
+                    html += '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">' + payment.date + '</div>';
+                    html += '</div>';
+                }
+                paymentHistory.innerHTML = html;
+            }
+        }
+        
+        cardSelector.addEventListener('change', function() {
+            currentCardIndex = parseInt(cardSelector.value) || 0;
+            saveToStorage('currentCardIndex', currentCardIndex);
+            renderDebt();
+        });
+        
+        // Card modal elements
+        const cardModalOverlay = document.getElementById('card-modal-overlay');
+        const cardModalClose = document.getElementById('card-modal-close');
+        const cardModalTitle = document.getElementById('card-modal-title');
+        const cardNameInput = document.getElementById('card-name-input');
+        const cardModalSaveBtn = document.getElementById('card-modal-save-btn');
+        
+        let cardModalMode = 'add'; // 'add' or 'edit'
+        
+        function openCardModal(mode) {
+            cardModalMode = mode;
+            if (mode === 'add') {
+                cardModalTitle.textContent = 'Add Card';
+                cardNameInput.value = '';
+            } else {
+                cardModalTitle.textContent = 'Edit Card Name';
+                let card = getCurrentCard();
+                cardNameInput.value = card ? card.name : '';
+            }
+            cardModalOverlay.classList.add('active');
+        }
+        
+        function closeCardModal() {
+            cardModalOverlay.classList.remove('active');
+        }
+        
+        cardModalClose.addEventListener('click', closeCardModal);
+        
+        cardModalOverlay.addEventListener('click', function(e) {
+            if (e.target === cardModalOverlay) {
+                closeCardModal();
+            }
+        });
+        
+        cardModalSaveBtn.addEventListener('click', function() {
+            let cardName = cardNameInput.value.trim();
+            if (!cardName) {
+                alert('Please enter a card name');
+                return;
+            }
+            
+            if (cardModalMode === 'add') {
+                let newCard = {
+                    name: cardName,
+                    balance: 0,
+                    payments: []
+                };
+                creditCards.push(newCard);
+                currentCardIndex = creditCards.length - 1;
+            } else {
+                creditCards[currentCardIndex].name = cardName;
+            }
+            
+            saveToStorage('creditCards', creditCards);
+            saveToStorage('currentCardIndex', currentCardIndex);
+            closeCardModal();
+            renderDebt();
+        });
+        
+        addCardBtn.addEventListener('click', function() {
+            openCardModal('add');
+        });
+        
+        editCardBtn.addEventListener('click', function() {
+            let card = getCurrentCard();
+            if (!card) {
+                alert('No card selected');
+                return;
+            }
+            openCardModal('edit');
+        });
+        
+        deleteCardBtn.addEventListener('click', function() {
+            let card = getCurrentCard();
+            if (!card) {
+                alert('No card selected');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete "' + card.name + '"? This will remove all payment history for this card.')) {
+                creditCards.splice(currentCardIndex, 1);
+                if (currentCardIndex >= creditCards.length) {
+                    currentCardIndex = Math.max(0, creditCards.length - 1);
+                }
+                saveToStorage('creditCards', creditCards);
+                saveToStorage('currentCardIndex', currentCardIndex);
+                renderDebt();
+            }
+        });
+        
+        updateBalanceBtn.addEventListener('click', function() {
+            let card = getCurrentCard();
+            if (!card) {
+                alert('Please add a card first');
+                return;
+            }
+            
+            let newBalance = parseFloat(debtBalanceInput.value);
+            if (isNaN(newBalance) || newBalance < 0) {
+                alert('Please enter a valid balance');
+                return;
+            }
+            
+            creditCards[currentCardIndex].balance = newBalance;
+            saveToStorage('creditCards', creditCards);
+            debtBalanceInput.value = '';
+            renderDebt();
+        });
+        
+        addPaymentBtn.addEventListener('click', function() {
+            let card = getCurrentCard();
+            if (!card) {
+                alert('Please add a card first');
+                return;
+            }
+            
+            let amount = parseFloat(debtPaymentInput.value);
+            let date = debtPaymentDate.value;
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                return;
+            }
+            
+            if (!date) {
+                alert('Please enter a date');
+                return;
+            }
+            
+            let payment = {
+                amount: amount,
+                date: date
+            };
+            
+            if (!creditCards[currentCardIndex].payments) {
+                creditCards[currentCardIndex].payments = [];
+            }
+            creditCards[currentCardIndex].payments.push(payment);
+            
+            // Also reduce balance
+            creditCards[currentCardIndex].balance = Math.max(0, creditCards[currentCardIndex].balance - amount);
+            
+            saveToStorage('creditCards', creditCards);
+            debtPaymentInput.value = '';
+            debtPaymentDate.value = '';
+            renderDebt();
+        });
+
+        // ============================================
+        // SUBSCRIPTIONS
+        // ============================================
+        
+        const subscriptionList = document.getElementById('subscription-list');
+        const addSubscriptionBtn = document.getElementById('add-subscription-btn');
+        const subscriptionModalOverlay = document.getElementById('subscription-modal-overlay');
+        const subscriptionModalClose = document.getElementById('subscription-modal-close');
+        const subscriptionModalTitle = document.getElementById('subscription-modal-title');
+        const subscriptionName = document.getElementById('subscription-name');
+        const subscriptionAmount = document.getElementById('subscription-amount');
+        const subscriptionCurrency = document.getElementById('subscription-currency');
+        const subscriptionCategory = document.getElementById('subscription-category');
+        const subscriptionDay = document.getElementById('subscription-day');
+        const subscriptionSaveBtn = document.getElementById('subscription-save-btn');
+        const subscriptionButtons = document.getElementById('subscription-buttons');
+        const subscriptionEditButtons = document.getElementById('subscription-edit-buttons');
+        const subscriptionDeleteBtn = document.getElementById('subscription-delete-btn');
+        const subscriptionUpdateBtn = document.getElementById('subscription-update-btn');
+        
+        let currentEditSubscriptionIndex = null;
+        
+        function displaySubscriptions() {
+            if (subscriptions.length === 0) {
+                subscriptionList.innerHTML = '<p>No subscriptions yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 0; i < subscriptions.length; i++) {
+                let sub = subscriptions[i];
+                html += '<div class="expense-item" data-subscription-index="' + i + '" style="cursor: pointer;">';
+                html += '<div><strong>' + sub.name + ':</strong> $' + sub.amount.toFixed(2) + ' ' + sub.currency + '</div>';
+                html += '<div style="color: #9a9a9a; font-size: 0.85rem; margin-top: 4px;">Bills on day ' + sub.day + ' · ' + sub.category + '</div>';
+                html += '</div>';
+            }
+            subscriptionList.innerHTML = html;
+            
+            // Add click handlers to edit
+            let items = subscriptionList.querySelectorAll('.expense-item');
+            for (let i = 0; i < items.length; i++) {
+                items[i].addEventListener('click', function() {
+                    let index = parseInt(this.getAttribute('data-subscription-index'));
+                    openSubscriptionModal(index);
+                });
+            }
+        }
+        
+        function openSubscriptionModal(index) {
+            if (index !== null && index !== undefined) {
+                // Edit mode
+                currentEditSubscriptionIndex = index;
+                let sub = subscriptions[index];
+                subscriptionModalTitle.textContent = 'Edit Subscription';
+                subscriptionName.value = sub.name;
+                subscriptionAmount.value = sub.amount;
+                subscriptionCurrency.value = sub.currency;
+                subscriptionCategory.value = sub.category;
+                subscriptionDay.value = sub.day;
+                subscriptionButtons.style.display = 'none';
+                subscriptionEditButtons.style.display = 'flex';
+            } else {
+                // Add mode
+                currentEditSubscriptionIndex = null;
+                subscriptionModalTitle.textContent = 'Add Subscription';
+                subscriptionName.value = '';
+                subscriptionAmount.value = '';
+                subscriptionCurrency.value = 'USD';
+                subscriptionCategory.value = 'Entertainment';
+                subscriptionDay.value = '';
+                subscriptionButtons.style.display = 'flex';
+                subscriptionEditButtons.style.display = 'none';
+            }
+            subscriptionModalOverlay.classList.add('active');
+        }
+        
+        function closeSubscriptionModal() {
+            subscriptionModalOverlay.classList.remove('active');
+            currentEditSubscriptionIndex = null;
+        }
+        
+        addSubscriptionBtn.addEventListener('click', function() {
+            openSubscriptionModal(null);
+        });
+        
+        subscriptionModalClose.addEventListener('click', closeSubscriptionModal);
+        
+        subscriptionModalOverlay.addEventListener('click', function(e) {
+            if (e.target === subscriptionModalOverlay) {
+                closeSubscriptionModal();
+            }
+        });
+        
+        subscriptionSaveBtn.addEventListener('click', function() {
+            let name = subscriptionName.value.trim();
+            let amount = parseFloat(subscriptionAmount.value);
+            let currency = subscriptionCurrency.value;
+            let category = subscriptionCategory.value;
+            let day = parseInt(subscriptionDay.value);
+            
+            if (!name) {
+                alert('Please enter a subscription name');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            if (!day || day < 1 || day > 31) {
+                alert('Please enter a valid billing day (1-31)');
+                return;
+            }
+            
+            let subscription = {
+                name: name,
+                amount: amount,
+                currency: currency,
+                category: category,
+                day: day
+            };
+            
+            subscriptions.push(subscription);
+            saveToStorage('subscriptions', subscriptions);
+            displaySubscriptions();
+            closeSubscriptionModal();
+        });
+        
+        subscriptionUpdateBtn.addEventListener('click', function() {
+            if (currentEditSubscriptionIndex === null) return;
+            
+            let name = subscriptionName.value.trim();
+            let amount = parseFloat(subscriptionAmount.value);
+            let currency = subscriptionCurrency.value;
+            let category = subscriptionCategory.value;
+            let day = parseInt(subscriptionDay.value);
+            
+            if (!name) {
+                alert('Please enter a subscription name');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            if (!day || day < 1 || day > 31) {
+                alert('Please enter a valid billing day (1-31)');
+                return;
+            }
+            
+            subscriptions[currentEditSubscriptionIndex] = {
+                name: name,
+                amount: amount,
+                currency: currency,
+                category: category,
+                day: day
+            };
+            
+            saveToStorage('subscriptions', subscriptions);
+            displaySubscriptions();
+            closeSubscriptionModal();
+        });
+        
+        subscriptionDeleteBtn.addEventListener('click', function() {
+            if (currentEditSubscriptionIndex === null) return;
+            
+            if (confirm('Are you sure you want to delete this subscription?')) {
+                subscriptions.splice(currentEditSubscriptionIndex, 1);
+                saveToStorage('subscriptions', subscriptions);
+                displaySubscriptions();
+                closeSubscriptionModal();
+            }
+        });
+        
+        // Check and auto-add subscription expenses
+        function checkSubscriptions() {
+            let now = new Date();
+            let currentDay = now.getDate();
+            let currentMonth = now.getMonth();
+            let currentYear = now.getFullYear();
+            let dateStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(currentDay).padStart(2, '0');
+            
+            for (let i = 0; i < subscriptions.length; i++) {
+                let sub = subscriptions[i];
+                
+                // Check if billing day has passed this month
+                if (currentDay >= sub.day) {
+                    // Check if we already added this subscription this month
+                    let alreadyAdded = false;
+                    let subDateStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(sub.day).padStart(2, '0');
+                    
+                    for (let j = 0; j < expenses.length; j++) {
+                        let exp = expenses[j];
+                        if (exp.description === 'Subscription: ' + sub.name && 
+                            exp.date === subDateStr) {
+                            alreadyAdded = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!alreadyAdded) {
+                        // Auto-add the subscription as an expense
+                        let expense = {
+                            amount: sub.amount,
+                            currency: sub.currency,
+                            category: sub.category,
+                            description: 'Subscription: ' + sub.name,
+                            date: subDateStr
+                        };
+                        expenses.push(expense);
+                        saveToStorage('expenses', expenses);
+                    }
+                }
+            }
+        }
+        
+        // Run subscription check on load
+        checkSubscriptions();
+        displaySubscriptions();
 
         // ============================================
         // REGISTER SERVICE WORKER FOR PWA
