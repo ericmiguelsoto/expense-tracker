@@ -346,7 +346,9 @@
         }
         
         .calendar-grid .day {
-            aspect-ratio: 1;
+            height: 52px;
+            min-height: 52px;
+            max-height: 52px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -354,6 +356,7 @@
             border-radius: 8px;
             font-size: 0.9rem;
             color: #4a4a4a;
+            overflow: hidden;
         }
         
         .calendar-grid .day.other-month {
@@ -369,6 +372,10 @@
             color: #e74c3c;
             font-weight: 600;
             margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .calendar-grid .day .amount.income-amount {
