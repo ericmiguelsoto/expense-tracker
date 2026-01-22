@@ -346,9 +346,9 @@
         }
         
         .calendar-grid .day {
-            height: 52px;
-            min-height: 52px;
-            max-height: 52px;
+            height: 58px;
+            min-height: 58px;
+            max-height: 58px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -357,6 +357,8 @@
             font-size: 0.9rem;
             color: #4a4a4a;
             overflow: hidden;
+            padding: 6px 4px;
+            box-sizing: border-box;
         }
         
         .calendar-grid .day.other-month {
@@ -368,14 +370,15 @@
         }
         
         .calendar-grid .day .amount {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #e74c3c;
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: 1px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
+            line-height: 1.1;
         }
         
         .calendar-grid .day .amount.income-amount {
